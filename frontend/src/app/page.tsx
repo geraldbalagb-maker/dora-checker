@@ -2,7 +2,6 @@
 
 import { useRef, useState } from "react";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
 type ClauseStatus = "presente" | "mancante" | "incompleta";
 
@@ -69,7 +68,7 @@ export default function Home() {
     setError(null);
     setReport(null);
     try {
-      const res = await fetch(`${API_URL}/api/analyze-contract`, {
+      const res = await fetch(`/api/analyze-contract`, {
         method: "POST",
         body: formData,
       });
@@ -90,7 +89,7 @@ export default function Home() {
     setError(null);
     setReport(null);
     try {
-      const res = await fetch(`${API_URL}/api/analyze-contract/demo`);
+      const res = await fetch(`/api/analyze-contract/demo`);
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       setReport(await res.json());
     } catch (e: unknown) {
