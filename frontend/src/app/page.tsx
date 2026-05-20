@@ -23,40 +23,32 @@ interface DoraReport {
 }
 
 const STATUS_CFG: Record<ClauseStatus, { label: string; color: string; border: string; bg: string }> = {
-  presente:   { label: "Presente",   color: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/5" },
-  mancante:   { label: "Mancante",   color: "text-red-400",     border: "border-red-500/30",     bg: "bg-red-500/5"     },
-  incompleta: { label: "Incompleta", color: "text-amber-400",   border: "border-amber-500/30",   bg: "bg-amber-500/5"   },
+  presente:   { label: "Presente",   color: "text-emerald-400", border: "border-emerald-500/30", bg: "bg-emerald-500/5"  },
+  mancante:   { label: "Mancante",   color: "text-red-400",     border: "border-red-500/30",     bg: "bg-red-500/5"      },
+  incompleta: { label: "Incompleta", color: "text-amber-400",   border: "border-amber-500/30",   bg: "bg-amber-500/5"    },
 };
 
-/* ── Glow blobs ───────────────────────────────────────────────── */
+/* ── Glow blob ────────────────────────────────────────────────── */
 function GlowBlob({ style }: { style: React.CSSProperties }) {
   return (
-    <div
-      aria-hidden
-      style={{
-        position: "absolute",
-        borderRadius: "50%",
-        filter: "blur(80px)",
-        pointerEvents: "none",
-        ...style,
-      }}
-    />
+    <div aria-hidden style={{
+      position: "absolute", borderRadius: "50%",
+      filter: "blur(90px)", pointerEvents: "none", ...style,
+    }} />
   );
 }
 
 /* ── Score ring ───────────────────────────────────────────────── */
 function ScoreRing({ score }: { score: number }) {
   const color = score >= 75 ? "#34d399" : score >= 50 ? "#fbbf24" : "#f87171";
-  const r = 52;
-  const circ = 2 * Math.PI * r;
-  const dash = (score / 100) * circ;
+  const r = 52, circ = 2 * Math.PI * r;
   return (
     <div className="flex flex-col items-center gap-2">
       <svg width="140" height="140" viewBox="0 0 140 140">
         <circle cx="70" cy="70" r={r} fill="none" stroke="#1f2937" strokeWidth="12" />
         <circle cx="70" cy="70" r={r} fill="none" stroke={color} strokeWidth="12"
-          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round"
-          transform="rotate(-90 70 70)" />
+          strokeDasharray={`${(score / 100) * circ} ${circ}`}
+          strokeLinecap="round" transform="rotate(-90 70 70)" />
         <text x="70" y="70" textAnchor="middle" dominantBaseline="central"
           fill={color} fontSize="28" fontWeight="700">{score}</text>
         <text x="70" y="92" textAnchor="middle" fill="#6b7280" fontSize="11">/100</text>
@@ -75,8 +67,6 @@ function ReportView({ report }: { report: DoraReport }) {
   return (
     <section className="relative max-w-4xl mx-auto px-6 pb-24 flex flex-col gap-10">
       <div className="h-px bg-gradient-to-r from-transparent via-cyan-500/30 to-transparent" />
-
-      {/* Score + summary */}
       <div className="flex flex-col md:flex-row gap-8 items-center
                       border border-white/[0.06] rounded-2xl bg-white/[0.02] p-8">
         <ScoreRing score={report.punteggio_conformita} />
@@ -93,7 +83,6 @@ function ReportView({ report }: { report: DoraReport }) {
         </div>
       </div>
 
-      {/* Clause cards */}
       <div>
         <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">
           Clausole Art. 30 — Analisi dettagliata
@@ -102,8 +91,7 @@ function ReportView({ report }: { report: DoraReport }) {
           {report.clausole.map((c, i) => {
             const cfg = STATUS_CFG[c.status];
             return (
-              <div key={i}
-                className={`rounded-xl border p-5 flex flex-col gap-2 ${cfg.border} ${cfg.bg}`}>
+              <div key={i} className={`rounded-xl border p-5 flex flex-col gap-2 ${cfg.border} ${cfg.bg}`}>
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <p className="font-medium text-white">{c.nome}</p>
@@ -125,15 +113,13 @@ function ReportView({ report }: { report: DoraReport }) {
         </div>
       </div>
 
-      {/* Recommendations */}
       {report.raccomandazioni.length > 0 && (
         <div>
           <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">Raccomandazioni</h2>
           <ul className="flex flex-col gap-3">
             {report.raccomandazioni.map((r, i) => (
               <li key={i} className="flex items-start gap-3 text-sm text-gray-300">
-                <span className="text-cyan-500 mt-0.5 shrink-0">→</span>
-                {r}
+                <span className="text-cyan-500 mt-0.5 shrink-0">→</span>{r}
               </li>
             ))}
           </ul>
@@ -144,21 +130,18 @@ function ReportView({ report }: { report: DoraReport }) {
 }
 
 /* ── Feature card ─────────────────────────────────────────────── */
-function FeatureCard({
-  icon, title, description, tag,
-}: { icon: React.ReactNode; title: string; description: string; tag: string }) {
+function FeatureCard({ icon, title, description, tag }: {
+  icon: React.ReactNode; title: string; description: string; tag: string;
+}) {
   return (
     <div className="group relative flex flex-col gap-4 rounded-2xl border border-white/[0.07]
                     bg-white/[0.02] p-6 hover:border-cyan-500/25 hover:bg-white/[0.04]
                     transition-all duration-300 cursor-default overflow-hidden">
-      {/* hover glow */}
       <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{ background: "radial-gradient(circle at 50% 0%, rgba(0,212,255,0.04) 0%, transparent 60%)" }} />
+        style={{ background: "radial-gradient(circle at 50% 0%, rgba(0,212,255,0.05) 0%, transparent 60%)" }} />
       <div className="relative z-10 flex flex-col gap-3">
         <div className="w-10 h-10 rounded-xl border border-cyan-500/20 bg-cyan-500/5
-                        flex items-center justify-center text-cyan-400">
-          {icon}
-        </div>
+                        flex items-center justify-center text-cyan-400">{icon}</div>
         <span className="text-[10px] uppercase tracking-widest text-cyan-500/70 font-medium">{tag}</span>
         <h3 className="font-semibold text-white leading-snug">{title}</h3>
         <p className="text-sm text-gray-500 leading-relaxed">{description}</p>
@@ -169,12 +152,11 @@ function FeatureCard({
 
 /* ── Main page ────────────────────────────────────────────────── */
 export default function Home() {
-  const [dragging, setDragging]       = useState(false);
-  const [legalAccepted, setLegal]     = useState(false);
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState<string | null>(null);
-  const [report, setReport]           = useState<DoraReport | null>(null);
-  const inputRef                      = useRef<HTMLInputElement>(null);
+  const [dragging, setDragging] = useState(false);
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState<string | null>(null);
+  const [report, setReport]     = useState<DoraReport | null>(null);
+  const inputRef                = useRef<HTMLInputElement>(null);
 
   async function runDemo() {
     setLoading(true); setError(null); setReport(null);
@@ -216,21 +198,22 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-black text-white overflow-x-hidden">
 
-      {/* ── Background glow blobs ── */}
+      {/* ── Fixed glow atmosphere ── */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        <GlowBlob style={{ width: 700, height: 700, top: -200, left: "50%", transform: "translateX(-50%)",
-          background: "radial-gradient(circle, rgba(0,212,255,0.12) 0%, transparent 70%)" }} />
-        <GlowBlob style={{ width: 400, height: 400, top: "60%", left: "10%",
-          background: "radial-gradient(circle, rgba(99,102,241,0.08) 0%, transparent 70%)" }} />
-        <GlowBlob style={{ width: 350, height: 350, top: "40%", right: "5%",
-          background: "radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)" }} />
+        <GlowBlob style={{ width: 800, height: 800, top: -300, left: "50%",
+          transform: "translateX(-50%)",
+          background: "radial-gradient(circle, rgba(0,212,255,0.11) 0%, transparent 65%)" }} />
+        <GlowBlob style={{ width: 500, height: 500, top: "55%", left: "5%",
+          background: "radial-gradient(circle, rgba(99,102,241,0.07) 0%, transparent 70%)" }} />
+        <GlowBlob style={{ width: 400, height: 400, top: "45%", right: "3%",
+          background: "radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%)" }} />
       </div>
 
       {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05]
-                         bg-black/70 backdrop-blur-xl">
+                         bg-black/75 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
-          {/* Logo */}
+
           <div className="flex items-center gap-2.5">
             <div className="w-6 h-6 rounded-md bg-cyan-500 flex items-center justify-center">
               <span className="text-black font-bold text-xs">D</span>
@@ -238,26 +221,22 @@ export default function Home() {
             <span className="font-semibold text-sm tracking-tight">DORA Checker</span>
           </div>
 
-          {/* Nav */}
           <nav className="hidden md:flex items-center gap-7">
-            {["Prodotto", "Documentazione", "Prezzi"].map(l => (
+            {["Prodotto", "Prezzi", "Docs"].map(l => (
               <a key={l} href="#"
-                className="text-xs text-gray-400 hover:text-white transition-colors tracking-wide">
+                className="text-xs text-gray-500 hover:text-white transition-colors tracking-wide">
                 {l}
               </a>
             ))}
           </nav>
 
-          {/* CTA buttons */}
           <div className="flex items-center gap-2">
             <button className="px-3.5 py-1.5 text-xs text-gray-400 hover:text-white
-                               border border-white/10 rounded-full hover:border-white/20
-                               transition-all tracking-wide">
+                               border border-white/10 rounded-full hover:border-white/20 transition-all">
               Login
             </button>
             <button className="px-3.5 py-1.5 text-xs text-black font-semibold
-                               bg-white rounded-full hover:bg-gray-100
-                               transition-all tracking-wide">
+                               bg-white rounded-full hover:bg-gray-100 transition-all">
               Get Started
             </button>
           </div>
@@ -265,108 +244,114 @@ export default function Home() {
       </header>
 
       {/* ── Hero ── */}
-      <section className="relative pt-32 pb-20 px-6 flex flex-col items-center text-center">
-        {/* Badge */}
-        <div className="mb-6 inline-flex items-center gap-2 px-3 py-1 rounded-full
+      <section className="relative flex flex-col items-center text-center pt-36 pb-24 px-6">
+
+        {/* Regulation badge */}
+        <div className="mb-7 inline-flex items-center gap-2 px-3 py-1 rounded-full
                         border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 text-xs tracking-wide">
           <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
           Reg. UE 2022/2554 · Digital Operational Resilience Act
         </div>
 
-        {/* Title */}
-        <h1 className="max-w-3xl text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight
-                       leading-[1.1] mb-5">
-          Verifica la conformità{" "}
-          <span style={{ background: "linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%)",
-            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-            DORA
-          </span>{" "}
-          dei tuoi contratti ICT
+        {/* Headline — Hormozi-style: benefit + time */}
+        <h1 className="max-w-2xl text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight
+                       leading-[1.05] mb-5">
+          Conformità DORA ICT{" "}
+          <span className="block" style={{
+            background: "linear-gradient(135deg, #00d4ff 0%, #818cf8 50%, #7c3aed 100%)",
+            WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
+          }}>
+            in 15 secondi
+          </span>
         </h1>
 
-        <p className="max-w-xl text-gray-400 text-lg leading-relaxed mb-10">
-          Carica il contratto con il tuo fornitore IT. Claude AI analizza le{" "}
-          <span className="text-white font-medium">8 clausole obbligatorie</span> dell&apos;Art. 30
-          e restituisce un report di conformità in pochi secondi.
+        {/* Concise subtitle */}
+        <p className="max-w-lg text-gray-400 text-base leading-relaxed mb-10">
+          Il Checker AI per l&apos;Articolo 30 del DORA.
+          Mappa rischi, rileva criticità, genera report istantanei.{" "}
+          <span className="text-gray-300">Zero lavoro manuale.</span>
         </p>
 
-        {/* ── Search-bar style dropzone ── */}
-        <div className="w-full max-w-2xl">
-          {/* Legal checkbox */}
-          <label className="flex items-start gap-2.5 mb-4 text-left cursor-pointer">
-            <input type="checkbox" checked={legalAccepted}
-              onChange={e => setLegal(e.target.checked)}
-              className="mt-0.5 w-3.5 h-3.5 accent-cyan-500 shrink-0" />
-            <span className="text-xs text-gray-500 leading-relaxed">
-              Confermo di avere il diritto di caricare questo documento e che non contiene
-              dati personali di terzi. I file vengono elaborati in memoria e non archiviati.
-            </span>
-          </label>
+        {/* ── Animated input field ── */}
+        <div className="w-full max-w-2xl flex flex-col items-center gap-3">
 
-          {/* Drop zone — search bar style */}
+          {/* Glowing border wrapper */}
           <div
-            onDragOver={e => { e.preventDefault(); setDragging(true); }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={onDrop}
-            onClick={() => legalAccepted && inputRef.current?.click()}
-            style={{ boxShadow: dragging ? "0 0 0 1px rgba(0,212,255,0.5), 0 0 30px rgba(0,212,255,0.1)" : "none" }}
-            className={`relative flex items-center gap-4 rounded-2xl border px-5 py-4
-                        transition-all duration-200
-                        ${dragging
-                          ? "border-cyan-400/60 bg-cyan-500/5"
-                          : "border-white/10 bg-white/[0.03] hover:border-cyan-500/30 hover:bg-white/[0.05]"}
-                        ${legalAccepted ? "cursor-pointer" : "opacity-50 cursor-not-allowed"}`}>
-            <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); }} />
+            className="hero-border w-full"
+            style={{ boxShadow: "0 0 50px rgba(0,212,255,0.12), 0 0 100px rgba(0,212,255,0.05)" }}
+          >
+            <div
+              className="hero-border-inner flex items-center gap-3 px-5 py-4 cursor-pointer"
+              onDragOver={e => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={onDrop}
+              onClick={() => inputRef.current?.click()}
+            >
+              <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
+                onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); }} />
 
-            {/* Upload icon */}
-            <div className="shrink-0 w-9 h-9 rounded-xl border border-cyan-500/20 bg-cyan-500/5
-                            flex items-center justify-center text-cyan-400">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                  d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
-              </svg>
+              {/* Icon */}
+              <div className="shrink-0 text-cyan-400/60">
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                    d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                </svg>
+              </div>
+
+              {/* Placeholder */}
+              <span className={`flex-1 text-sm text-left select-none truncate
+                               ${dragging ? "text-cyan-300" : "text-gray-500"}`}>
+                {dragging ? "Rilascia il PDF qui…" : "Trascina il PDF qui..."}
+              </span>
+
+              {/* Separator */}
+              <div className="shrink-0 w-px h-6 bg-white/[0.08]" />
+
+              {/* CTA button */}
+              <button
+                onClick={e => { e.stopPropagation(); runDemo(); }}
+                disabled={loading}
+                className="shrink-0 bg-white text-black text-sm font-semibold
+                           px-5 py-2 rounded-xl hover:bg-gray-100 transition-colors
+                           disabled:opacity-40 whitespace-nowrap"
+              >
+                {loading ? (
+                  <span className="flex items-center gap-2">
+                    <span className="w-3.5 h-3.5 border border-gray-400 border-t-transparent
+                                     rounded-full animate-spin inline-block" />
+                    Analisi…
+                  </span>
+                ) : "Analizza Demo AWS"}
+              </button>
             </div>
-
-            <div className="flex-1 text-left min-w-0">
-              <p className="text-sm text-gray-300">
-                {dragging ? "Rilascia il PDF qui…" : "Trascina il contratto PDF qui"}
-              </p>
-              <p className="text-xs text-gray-600 mt-0.5">oppure clicca per selezionare · max 20 MB</p>
-            </div>
-
-            {/* Divider */}
-            <div className="hidden sm:block w-px h-8 bg-white/10 shrink-0" />
-
-            {/* Demo button */}
-            <button
-              onClick={e => { e.stopPropagation(); runDemo(); }}
-              disabled={loading}
-              style={{ background: "linear-gradient(135deg, rgba(0,212,255,0.15) 0%, rgba(99,102,241,0.15) 100%)",
-                border: "1px solid rgba(0,212,255,0.25)" }}
-              className="shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-medium
-                         text-cyan-300 hover:text-white transition-all duration-200
-                         hover:brightness-125 disabled:opacity-50 whitespace-nowrap">
-              <span className="text-base leading-none">✦</span>
-              {loading ? "Analisi…" : "Analizza Demo"}
-            </button>
           </div>
+
+          {/* Legal micro-note */}
+          <p className="text-[11px] text-gray-700 max-w-md">
+            Caricando il file confermi di averne il diritto. Elaborazione in RAM · zero data retention.
+          </p>
 
           {/* Error */}
           {error && (
-            <div className="mt-3 px-4 py-2.5 rounded-xl border border-red-500/20 bg-red-500/5
-                            text-red-400 text-xs text-left">
+            <div className="w-full px-4 py-2.5 rounded-xl border border-red-500/20
+                            bg-red-500/5 text-red-400 text-xs text-left">
               {error}
             </div>
           )}
+        </div>
 
-          {/* Loading indicator */}
-          {loading && (
-            <div className="mt-4 flex items-center justify-center gap-3 text-sm text-gray-500">
-              <div className="w-4 h-4 border border-cyan-500 border-t-transparent rounded-full animate-spin" />
-              Analisi AI in corso · 15–30 secondi…
-            </div>
-          )}
+        {/* Social proof micro-line */}
+        <div className="mt-8 flex items-center gap-3 text-xs text-gray-600">
+          <span className="flex items-center gap-1.5">
+            <svg className="w-3.5 h-3.5 text-cyan-500/50" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+            Analisi 8 clausole Art. 30
+          </span>
+          <span className="text-gray-800">·</span>
+          <span>Claude AI · claude-sonnet-4-6</span>
+          <span className="text-gray-800">·</span>
+          <span>No storage</span>
         </div>
       </section>
 
@@ -380,8 +365,8 @@ export default function Home() {
       {/* ── Feature cards ── */}
       <section className="relative max-w-6xl mx-auto px-6 py-20">
         <div className="mb-10 text-center">
-          <p className="text-xs uppercase tracking-widest text-cyan-500/60 mb-3">Funzionalità</p>
-          <h2 className="text-2xl md:text-3xl font-bold text-white">
+          <p className="text-xs uppercase tracking-widest text-cyan-500/50 mb-3">Funzionalità</p>
+          <h2 className="text-2xl md:text-3xl font-bold">
             Tutto ciò che serve per la compliance DORA
           </h2>
         </div>
@@ -426,28 +411,25 @@ export default function Home() {
       {/* ── Interactive CTA ── */}
       <section className="relative max-w-6xl mx-auto px-6 pb-28">
         <div className="rounded-3xl border border-white/[0.07] bg-white/[0.02] overflow-hidden">
-          <div className="grid md:grid-cols-2 gap-0">
+          <div className="grid md:grid-cols-2">
 
-            {/* Left — text */}
-            <div className="p-10 md:p-14 flex flex-col justify-center gap-6">
+            <div className="p-10 md:p-14 flex flex-col justify-center gap-6
+                            border-b md:border-b-0 md:border-r border-white/[0.06]">
               <p className="text-xs uppercase tracking-widest text-cyan-500/60">Prova ora</p>
               <h2 className="text-2xl md:text-3xl font-bold leading-snug">
                 Metti alla prova<br />un contratto reale
               </h2>
               <p className="text-gray-400 text-sm leading-relaxed max-w-sm">
                 Registra l&apos;account per caricare i tuoi contratti riservati in totale sicurezza.
-                I file non vengono mai archiviati: elaborazione in memoria, zero data retention.
+                Elaborazione in memoria, zero data retention.
               </p>
               <div className="flex flex-col sm:flex-row gap-3">
-                <button
-                  style={{ background: "linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%)" }}
+                <button style={{ background: "linear-gradient(135deg, #00d4ff 0%, #7c3aed 100%)" }}
                   className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white
                              hover:opacity-90 transition-opacity">
                   Crea account gratuito
                 </button>
-                <button
-                  onClick={runDemo}
-                  disabled={loading}
+                <button onClick={runDemo} disabled={loading}
                   className="px-5 py-2.5 rounded-xl text-sm text-gray-400 border border-white/10
                              hover:border-white/20 hover:text-white transition-all disabled:opacity-50">
                   {loading ? "Analisi…" : "Prova la demo →"}
@@ -455,24 +437,16 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Right — luminous dropzone */}
-            <div className="relative flex items-center justify-center p-10 md:p-14
-                            border-t md:border-t-0 md:border-l border-white/[0.06]">
-              {/* glow behind */}
+            <div className="relative flex items-center justify-center p-10 md:p-14">
               <div aria-hidden className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <div style={{
-                  width: 300, height: 300,
-                  background: "radial-gradient(circle, rgba(0,212,255,0.1) 0%, transparent 70%)",
-                  filter: "blur(30px)",
-                }} />
+                <div style={{ width: 320, height: 320, filter: "blur(40px)",
+                  background: "radial-gradient(circle, rgba(0,212,255,0.09) 0%, transparent 70%)" }} />
               </div>
 
-              {/* Dropzone card */}
-              <div
-                style={{ boxShadow: "0 0 0 1px rgba(0,212,255,0.2), 0 0 40px rgba(0,212,255,0.05)" }}
-                className="relative w-full max-w-xs rounded-2xl border border-cyan-500/25
+              <div style={{ boxShadow: "0 0 0 1px rgba(0,212,255,0.18), 0 0 40px rgba(0,212,255,0.06)" }}
+                className="relative w-full max-w-xs rounded-2xl border border-cyan-500/20
                            bg-black/60 backdrop-blur p-8 flex flex-col items-center gap-5 text-center">
-                <div className="w-14 h-14 rounded-2xl border border-cyan-500/30 bg-cyan-500/5
+                <div className="w-14 h-14 rounded-2xl border border-cyan-500/25 bg-cyan-500/5
                                 flex items-center justify-center text-cyan-400">
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
@@ -481,14 +455,14 @@ export default function Home() {
                 </div>
                 <div>
                   <p className="text-white font-medium text-sm mb-1">Carica il tuo contratto</p>
-                  <p className="text-gray-500 text-xs">PDF · Max 20 MB · Elaborazione in RAM</p>
+                  <p className="text-gray-500 text-xs">PDF · Max 20 MB · Solo in RAM</p>
                 </div>
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
-                <div className="flex flex-wrap gap-2 justify-center">
+                <div className="flex flex-wrap gap-1.5 justify-center">
                   {["SLA", "Audit", "MTTR", "Exit Strategy", "Incidenti ICT"].map(tag => (
-                    <span key={tag}
-                      className="px-2.5 py-1 rounded-full text-[10px] border border-cyan-500/15
-                                 bg-cyan-500/5 text-cyan-400/70 tracking-wide">
+                    <span key={tag} className="px-2.5 py-1 rounded-full text-[10px]
+                                               border border-cyan-500/15 bg-cyan-500/5
+                                               text-cyan-400/70 tracking-wide">
                       {tag}
                     </span>
                   ))}
@@ -499,7 +473,6 @@ export default function Home() {
                 </button>
               </div>
             </div>
-
           </div>
         </div>
       </section>
@@ -514,7 +487,7 @@ export default function Home() {
             <span className="text-xs text-gray-600">DORA Checker · Reg. UE 2022/2554</span>
           </div>
           <p className="text-xs text-gray-700">
-            Non costituisce consulenza legale. Per uso professionale verificare con un legale qualificato.
+            Non costituisce consulenza legale. Verificare con un legale qualificato.
           </p>
         </div>
       </footer>
