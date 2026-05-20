@@ -117,9 +117,10 @@ async def analyze_contract(pdf_bytes: bytes | None, demo: bool = False) -> DoraR
         assert pdf_bytes is not None
         contract_text, pages = _extract_text(pdf_bytes)
 
-    client = anthropic.Anthropic(api_key=settings.anthropic_api_key)
+    # AsyncAnthropic: non-blocking, correct for async FastAPI routes
+    client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
 
-    response = client.messages.create(
+    response = await client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=4096,
         system=_SYSTEM_PROMPT,
@@ -133,9 +134,18 @@ async def analyze_contract(pdf_bytes: bytes | None, demo: bool = False) -> DoraR
         ],
     )
 
-    tool_block = next(b for b in response.content if b.type == "tool_use")
-    data = tool_block.input
+    # next(..., None) avoids StopIteration inside async def (PEP 479 converts it to RuntimeError)
+    tool_block = next(
+        (b for b in response.content if b.type == "tool_use"), None
+    )
+    if tool_block is None:
+        raise ValueError(
+            f"Claude non ha restituito un tool_use block. "
+            f"stop_reason={response.stop_reason!r}, "
+            f"content_types={[b.type for b in response.content]}"
+        )
 
+    data = tool_block.input
     clausole = [DoraClause(**c) for c in data["clausole"]]
 
     return DoraReport(
