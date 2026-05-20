@@ -235,6 +235,14 @@ export default function Home() {
                                border border-white/10 rounded-full hover:border-white/20 transition-all">
               Login
             </button>
+            <button
+              onClick={runDemo} disabled={loading}
+              style={{ border: "1px solid rgba(0,212,255,0.35)",
+                       background: "linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1))" }}
+              className="px-3.5 py-1.5 text-xs text-cyan-300 font-medium rounded-full
+                         hover:brightness-125 transition-all disabled:opacity-40 whitespace-nowrap">
+              {loading ? "Analisi…" : "✦ Analizza Demo AWS"}
+            </button>
             <button className="px-3.5 py-1.5 text-xs text-black font-semibold
                                bg-white rounded-full hover:bg-gray-100 transition-all">
               Get Started
@@ -254,10 +262,11 @@ export default function Home() {
         </div>
 
         {/* Headline — Hormozi-style: benefit + time */}
-        <h1 className="max-w-2xl text-5xl md:text-6xl lg:text-7xl font-bold tracking-tight
-                       leading-[1.05] mb-5">
-          Conformità DORA ICT{" "}
-          <span className="block" style={{
+        <h1 className="font-bold tracking-tight leading-[1.05] mb-5">
+          <span className="block text-3xl md:text-4xl lg:text-5xl text-white">
+            Conformità DORA ICT
+          </span>
+          <span className="block text-5xl md:text-6xl lg:text-7xl" style={{
             background: "linear-gradient(135deg, #00d4ff 0%, #818cf8 50%, #7c3aed 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>
@@ -304,25 +313,10 @@ export default function Home() {
                 {dragging ? "Rilascia il PDF qui…" : "Trascina il PDF qui..."}
               </span>
 
-              {/* Separator */}
-              <div className="shrink-0 w-px h-6 bg-white/[0.08]" />
-
-              {/* CTA button */}
-              <button
-                onClick={e => { e.stopPropagation(); runDemo(); }}
-                disabled={loading}
-                className="shrink-0 bg-white text-black text-sm font-semibold
-                           px-5 py-2 rounded-xl hover:bg-gray-100 transition-colors
-                           disabled:opacity-40 whitespace-nowrap"
-              >
-                {loading ? (
-                  <span className="flex items-center gap-2">
-                    <span className="w-3.5 h-3.5 border border-gray-400 border-t-transparent
-                                     rounded-full animate-spin inline-block" />
-                    Analisi…
-                  </span>
-                ) : "Analizza Demo AWS"}
-              </button>
+              {/* Click hint */}
+              <span className="shrink-0 text-xs text-gray-700 hidden sm:block">
+                o clicca per scegliere
+              </span>
             </div>
           </div>
 
