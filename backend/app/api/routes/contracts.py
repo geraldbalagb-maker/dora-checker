@@ -1,6 +1,7 @@
+import anthropic
 from fastapi import APIRouter, File, HTTPException, UploadFile
-from fastapi.responses import JSONResponse
 
+from app.config import settings
 from app.models.dora_report import DoraReport
 from app.services.dora_analyzer import analyze_contract
 
@@ -23,7 +24,10 @@ async def analyze(file: UploadFile = File(...)):
     try:
         report = await analyze_contract(pdf_bytes=pdf_bytes, demo=False)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=500,
+            detail=f"{type(exc).__name__}: {exc}",
+        ) from exc
 
     return report
 
@@ -33,6 +37,32 @@ async def analyze_demo():
     try:
         report = await analyze_contract(pdf_bytes=None, demo=True)
     except Exception as exc:
-        raise HTTPException(status_code=500, detail=str(exc)) from exc
+        raise HTTPException(
+            status_code=500,
+            detail=f"{type(exc).__name__}: {exc}",
+        ) from exc
 
     return report
+
+
+@router.get("/health/anthropic")
+async def health_anthropic():
+    """Diagnostic endpoint: verifies Anthropic API key and connectivity."""
+    try:
+        client = anthropic.AsyncAnthropic(api_key=settings.anthropic_api_key)
+        # Minimal API call — just count tokens, no generation cost
+        result = await client.messages.count_tokens(
+            model="claude-sonnet-4-6",
+            messages=[{"role": "user", "content": "ping"}],
+        )
+        return {
+            "status": "ok",
+            "anthropic_reachable": True,
+            "input_tokens": result.input_tokens,
+        }
+    except anthropic.AuthenticationError as exc:
+        return {"status": "error", "error": "AuthenticationError", "detail": str(exc)}
+    except anthropic.APIConnectionError as exc:
+        return {"status": "error", "error": "APIConnectionError", "detail": str(exc)}
+    except Exception as exc:
+        return {"status": "error", "error": type(exc).__name__, "detail": str(exc)}
