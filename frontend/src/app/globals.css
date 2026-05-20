@@ -10,7 +10,6 @@
 }
 
 .hero-border {
-  /* Sweeping cyan → indigo → cyan gradient along the perimeter */
   background: linear-gradient(
     90deg,
     #00d4ff 0%,
@@ -23,12 +22,12 @@
   );
   background-size: 300% 100%;
   animation: border-sweep 4s linear infinite;
-  border-radius: 1.25rem;   /* 20px */
   padding: 1.5px;
+  /* border-radius set inline per component */
 }
 
 .hero-border-inner {
   background: #060606;
-  border-radius: calc(1.25rem - 1.5px);
   position: relative;
+  /* border-radius set inline per component */
 }

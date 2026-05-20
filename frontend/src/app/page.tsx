@@ -209,41 +209,32 @@ export default function Home() {
           background: "radial-gradient(circle, rgba(0,212,255,0.05) 0%, transparent 70%)" }} />
       </div>
 
-      {/* ── Header ── */}
-      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/[0.05]
-                         bg-black/75 backdrop-blur-xl">
-        <div className="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
+      {/* ── Header — Code Wiki minimal ── */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl">
+        <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
 
+          {/* Logo */}
           <div className="flex items-center gap-2.5">
-            <div className="w-6 h-6 rounded-md bg-cyan-500 flex items-center justify-center">
-              <span className="text-black font-bold text-xs">D</span>
+            <div className="w-7 h-7 rounded-lg bg-cyan-500 flex items-center justify-center">
+              <span className="text-black font-bold text-sm">D</span>
             </div>
             <span className="font-semibold text-sm tracking-tight">DORA Checker</span>
           </div>
 
-          <nav className="hidden md:flex items-center gap-7">
-            {["Prodotto", "Prezzi", "Docs"].map(l => (
-              <a key={l} href="#"
-                className="text-xs text-gray-500 hover:text-white transition-colors tracking-wide">
-                {l}
-              </a>
-            ))}
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <button className="px-3.5 py-1.5 text-xs text-gray-400 hover:text-white
-                               border border-white/10 rounded-full hover:border-white/20 transition-all">
+          {/* Right — icon-style actions (Code Wiki pattern) */}
+          <div className="flex items-center gap-3">
+            <button className="text-xs text-gray-500 hover:text-white transition-colors px-1">
               Login
             </button>
             <button
               onClick={runDemo} disabled={loading}
-              style={{ border: "1px solid rgba(0,212,255,0.35)",
-                       background: "linear-gradient(135deg,rgba(0,212,255,0.1),rgba(124,58,237,0.1))" }}
-              className="px-3.5 py-1.5 text-xs text-cyan-300 font-medium rounded-full
-                         hover:brightness-125 transition-all disabled:opacity-40 whitespace-nowrap">
-              {loading ? "Analisi…" : "✦ Analizza Demo AWS"}
+              style={{ border: "1px solid rgba(0,212,255,0.3)",
+                       background: "rgba(0,212,255,0.06)" }}
+              className="px-4 py-2 text-xs text-cyan-300 font-medium rounded-full
+                         hover:bg-cyan-500/10 transition-all disabled:opacity-40 whitespace-nowrap">
+              {loading ? "Analisi…" : "✦ Demo AWS"}
             </button>
-            <button className="px-3.5 py-1.5 text-xs text-black font-semibold
+            <button className="px-4 py-2 text-xs text-black font-semibold
                                bg-white rounded-full hover:bg-gray-100 transition-all">
               Get Started
             </button>
@@ -251,22 +242,15 @@ export default function Home() {
         </div>
       </header>
 
-      {/* ── Hero ── */}
-      <section className="relative flex flex-col items-center text-center pt-36 pb-24 px-6">
+      {/* ── Hero — Code Wiki style ── */}
+      <section className="relative flex flex-col items-center text-center pt-40 pb-28 px-6">
 
-        {/* Regulation badge */}
-        <div className="mb-7 inline-flex items-center gap-2 px-3 py-1 rounded-full
-                        border border-cyan-500/20 bg-cyan-500/5 text-cyan-400 text-xs tracking-wide">
-          <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
-          Reg. UE 2022/2554 · Digital Operational Resilience Act
-        </div>
-
-        {/* Headline — Hormozi-style: benefit + time */}
-        <h1 className="font-bold tracking-tight leading-[1.05] mb-5">
-          <span className="block text-3xl md:text-4xl lg:text-5xl text-white">
+        {/* Headline — massive, white, like "Code Wiki" brand title */}
+        <h1 className="font-bold tracking-tight leading-[1.0] mb-6">
+          <span className="block text-6xl md:text-7xl lg:text-8xl text-white">
             Conformità DORA ICT
           </span>
-          <span className="block text-5xl md:text-6xl lg:text-7xl" style={{
+          <span className="block text-4xl md:text-5xl lg:text-6xl mt-2" style={{
             background: "linear-gradient(135deg, #00d4ff 0%, #818cf8 50%, #7c3aed 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>
@@ -274,23 +258,29 @@ export default function Home() {
           </span>
         </h1>
 
-        {/* Concise subtitle */}
-        <p className="max-w-lg text-gray-400 text-base leading-relaxed mb-10">
-          Il Checker AI per l&apos;Articolo 30 del DORA.
-          Mappa rischi, rileva criticità, genera report istantanei.{" "}
-          <span className="text-gray-300">Zero lavoro manuale.</span>
+        {/* Subtitle — cyan, like Code Wiki's blue subtitle */}
+        <p className="max-w-xl text-base md:text-lg leading-relaxed mb-12"
+           style={{ color: "rgba(125,211,252,0.75)" }}>
+          Il Checker AI per l&apos;Articolo 30 del DORA.<br />
+          Mappa rischi, rileva criticità, genera report istantanei. Zero lavoro manuale.
         </p>
 
-        {/* ── Animated input field ── */}
-        <div className="w-full max-w-2xl flex flex-col items-center gap-3">
+        {/* Glow concentrated behind the search bar (Code Wiki pattern) */}
+        <div aria-hidden className="absolute pointer-events-none"
+          style={{ width: 700, height: 300, bottom: 80, left: "50%", transform: "translateX(-50%)",
+            background: "radial-gradient(ellipse, rgba(0,180,255,0.13) 0%, transparent 70%)",
+            filter: "blur(30px)" }} />
 
-          {/* Glowing border wrapper */}
+        {/* ── Search bar — full pill, Code Wiki proportions ── */}
+        <div className="w-full max-w-2xl flex flex-col items-center gap-3">
           <div
             className="hero-border w-full"
-            style={{ boxShadow: "0 0 50px rgba(0,212,255,0.12), 0 0 100px rgba(0,212,255,0.05)" }}
+            style={{ borderRadius: "9999px",
+                     boxShadow: "0 0 60px rgba(0,212,255,0.1), 0 0 120px rgba(0,212,255,0.04)" }}
           >
             <div
-              className="hero-border-inner flex items-center gap-3 px-5 py-4 cursor-pointer"
+              className="hero-border-inner flex items-center gap-4 px-7 py-5 cursor-pointer"
+              style={{ borderRadius: "9999px" }}
               onDragOver={e => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
               onDrop={onDrop}
@@ -299,24 +289,19 @@ export default function Home() {
               <input ref={inputRef} type="file" accept="application/pdf" className="hidden"
                 onChange={e => { const f = e.target.files?.[0]; if (f) uploadFile(f); }} />
 
-              {/* Icon */}
-              <div className="shrink-0 text-cyan-400/60">
+              {/* Placeholder — Code Wiki search-bar style */}
+              <span className={`flex-1 text-base text-left select-none
+                               ${dragging ? "text-cyan-300" : "text-gray-500"}`}>
+                {dragging ? "Rilascia il PDF qui…" : "Trascina il PDF del contratto qui..."}
+              </span>
+
+              {/* Search icon — right, like Code Wiki */}
+              <div className="shrink-0 text-gray-600 hover:text-gray-400 transition-colors">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
                     d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
                 </svg>
               </div>
-
-              {/* Placeholder */}
-              <span className={`flex-1 text-sm text-left select-none truncate
-                               ${dragging ? "text-cyan-300" : "text-gray-500"}`}>
-                {dragging ? "Rilascia il PDF qui…" : "Trascina il PDF qui..."}
-              </span>
-
-              {/* Click hint */}
-              <span className="shrink-0 text-xs text-gray-700 hidden sm:block">
-                o clicca per scegliere
-              </span>
             </div>
           </div>
 
