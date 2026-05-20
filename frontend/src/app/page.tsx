@@ -245,12 +245,12 @@ export default function Home() {
       {/* ── Hero — Code Wiki style ── */}
       <section className="relative flex flex-col items-center text-center pt-40 pb-28 px-6">
 
-        {/* Headline — massive, white, like "Code Wiki" brand title */}
-        <h1 className="font-bold tracking-tight leading-[1.0] mb-6">
-          <span className="block text-6xl md:text-7xl lg:text-8xl text-white">
+        {/* Headline — omogenea, stessa taglia entrambe le righe */}
+        <h1 className="font-bold tracking-tight leading-[1.08] mb-6">
+          <span className="block text-4xl md:text-5xl lg:text-6xl text-white">
             Conformità DORA ICT
           </span>
-          <span className="block text-4xl md:text-5xl lg:text-6xl mt-2" style={{
+          <span className="block text-4xl md:text-5xl lg:text-6xl" style={{
             background: "linear-gradient(135deg, #00d4ff 0%, #818cf8 50%, #7c3aed 100%)",
             WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent",
           }}>
@@ -258,11 +258,11 @@ export default function Home() {
           </span>
         </h1>
 
-        {/* Subtitle — cyan, like Code Wiki's blue subtitle */}
-        <p className="max-w-xl text-base md:text-lg leading-relaxed mb-12"
+        {/* Subtitle — cyan, una riga fluida senza <br /> forzati */}
+        <p className="max-w-lg text-base leading-relaxed mb-12"
            style={{ color: "rgba(125,211,252,0.75)" }}>
-          Il Checker AI per l&apos;Articolo 30 del DORA.<br />
-          Mappa rischi, rileva criticità, genera report istantanei. Zero lavoro manuale.
+          Il Checker AI per l&apos;Articolo 30 del DORA. Mappa rischi, rileva criticità,
+          genera report istantanei. Zero lavoro manuale.
         </p>
 
         {/* Glow concentrated behind the search bar (Code Wiki pattern) */}
