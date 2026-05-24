@@ -32,6 +32,33 @@
   /* border-radius set inline per component */
 }
 
+/* ── Print / PDF export ───────────────────────────────────────── */
+@media print {
+  /* Black-on-white for readability */
+  body { background: white !important; color: #111 !important; }
+
+  /* Hide interactive chrome */
+  header, footer, .print\:hidden { display: none !important; }
+
+  /* Remove fixed positioning from header so it doesn't overlap */
+  header { position: static !important; }
+
+  /* Reset backgrounds on cards */
+  [class*="bg-white/"], [class*="border-white/"] {
+    background: #f9f9f9 !important;
+    border-color: #e5e7eb !important;
+  }
+
+  /* Score ring — keep visible */
+  svg text { fill: #111 !important; }
+
+  /* Ensure full width */
+  main { padding-top: 1rem !important; max-width: 100% !important; }
+
+  /* Page breaks */
+  section, .rounded-xl { page-break-inside: avoid; }
+}
+
 /* ── Loading overlay animations ───────────────────────────────── */
 
 /* Scanning beam moves top → bottom of the document card */

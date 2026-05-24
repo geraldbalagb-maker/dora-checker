@@ -7,6 +7,11 @@ class Settings(BaseSettings):
     anthropic_api_key: str
     frontend_url: str = "http://localhost:3000"
 
+    # Stripe — optional so the app boots even without billing configured
+    stripe_secret_key: str = ""
+    stripe_webhook_secret: str = ""
+    stripe_pro_price_id: str = ""
+
     class Config:
         env_file = ".env"
 

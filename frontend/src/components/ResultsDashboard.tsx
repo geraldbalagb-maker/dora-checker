@@ -162,9 +162,11 @@ function FilterTab({ label, count, active, onClick, accent }: {
 interface Props {
   report: DoraReport;
   onReset: () => void;
+  /** Label for the back button — defaults to "Nuova analisi" */
+  backLabel?: string;
 }
 
-export default function ResultsDashboard({ report, onReset }: Props) {
+export default function ResultsDashboard({ report, onReset, backLabel = "Nuova analisi" }: Props) {
   const [filter, setFilter] = useState<FilterValue>("tutti");
 
   const presente   = report.clausole.filter(c => c.status === "presente").length;
@@ -216,11 +218,24 @@ export default function ResultsDashboard({ report, onReset }: Props) {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
                   d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
-              Nuova analisi
+              {backLabel}
             </button>
           </div>
 
           <div className="flex items-center gap-2 flex-wrap justify-end">
+            {/* PDF print button */}
+            <button
+              onClick={() => window.print()}
+              className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-white
+                         border border-white/[0.08] hover:border-white/20 rounded-full px-3 py-1.5
+                         transition-all print:hidden"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Stampa PDF
+            </button>
             <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10
                              border border-emerald-500/20 rounded-full px-3 py-1.5">
               <span className="font-bold">{presente}</span> Presenti

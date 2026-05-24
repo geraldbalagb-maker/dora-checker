@@ -1,9 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
+import Link from "next/link";
 import LoadingOverlay from "@/components/LoadingOverlay";
 import ResultsDashboard from "@/components/ResultsDashboard";
 import { DoraReport } from "@/lib/types";
+import { createClient } from "@/lib/supabase/client";
 
 /* ── Glow blob ────────────────────────────────────────────────── */
 function GlowBlob({ style }: { style: React.CSSProperties }) {
@@ -44,7 +46,23 @@ export default function Home() {
   const [error, setError]               = useState<string | null>(null);
   const [report, setReport]             = useState<DoraReport | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [user, setUser]                 = useState<{ email?: string } | null>(null);
   const inputRef                        = useRef<HTMLInputElement>(null);
+  const supabase                        = createClient();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setUser(data.user));
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUser(session?.user ?? null);
+    });
+    return () => subscription.unsubscribe();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Forward auth token when user is logged in
+  async function authHeader(): Promise<string> {
+    const { data: { session } } = await supabase.auth.getSession();
+    return session?.access_token ? `Bearer ${session.access_token}` : "";
+  }
 
   /* ── Reset to idle ── */
   function reset() {
@@ -68,7 +86,11 @@ export default function Home() {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const res = await fetch("/api/analyze-contract", { method: "POST", body: fd });
+      const token = await authHeader();
+      const res = await fetch("/api/analyze-contract", {
+        method: "POST", body: fd,
+        headers: token ? { authorization: token } : {},
+      });
 
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
@@ -80,6 +102,7 @@ export default function Home() {
       // brief pause so the user sees step 3 light up
       await new Promise(r => setTimeout(r, 400));
       setReport(data);
+      if (user) setError(null); // clear any previous error; saved indicator shown in header
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "Errore durante l'analisi.");
     } finally {
@@ -100,7 +123,10 @@ export default function Home() {
     const t1 = setTimeout(() => setLoadingStep(1), 500);
 
     try {
-      const res = await fetch("/api/analyze-contract/demo");
+      const token = await authHeader();
+      const res = await fetch("/api/analyze-contract/demo", {
+        headers: token ? { authorization: token } : {},
+      });
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.detail ?? j.error ?? `HTTP ${res.status}`);
@@ -188,9 +214,17 @@ export default function Home() {
 
           {/* Right actions */}
           <div className="flex items-center gap-3">
-            <button className="text-xs text-gray-500 hover:text-white transition-colors px-1">
-              Login
-            </button>
+            {user ? (
+              <Link href="/dashboard"
+                className="text-xs text-gray-400 hover:text-white transition-colors px-1 truncate max-w-[140px]">
+                {user.email ?? "Dashboard"}
+              </Link>
+            ) : (
+              <Link href="/login"
+                className="text-xs text-gray-500 hover:text-white transition-colors px-1">
+                Login
+              </Link>
+            )}
             <button
               onClick={runDemo}
               disabled={loading || !!selectedFile}
@@ -199,10 +233,11 @@ export default function Home() {
                          hover:bg-cyan-500/10 transition-all disabled:opacity-40 whitespace-nowrap">
               ✦ Demo AWS
             </button>
-            <button className="px-4 py-2 text-xs text-black font-semibold
-                               bg-white rounded-full hover:bg-gray-100 transition-all">
-              Get Started
-            </button>
+            <Link href={user ? "/dashboard" : "/signup"}
+              className="px-4 py-2 text-xs text-black font-semibold
+                         bg-white rounded-full hover:bg-gray-100 transition-all">
+              {user ? "Dashboard" : "Get Started"}
+            </Link>
           </div>
         </div>
       </header>
