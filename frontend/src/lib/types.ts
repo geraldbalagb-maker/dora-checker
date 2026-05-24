@@ -6,6 +6,7 @@ export interface DoraClause {
   status: ClauseStatus;
   estratto?: string;
   note: string;
+  bozza_paragrafo?: string;
 }
 
 export interface DoraReport {

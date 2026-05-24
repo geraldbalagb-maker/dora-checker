@@ -47,24 +47,110 @@ function ClauseCard({ clause }: { clause: DoraClause }) {
   );
 }
 
-/* ── Filter tab ───────────────────────────────────────────────── */
-type FilterValue = "tutti" | ClauseStatus;
+/* ── Draft card ───────────────────────────────────────────────── */
+function DraftCard({ clause }: { clause: DoraClause }) {
+  const [copied, setCopied] = useState(false);
+  const cfg = STATUS_CFG[clause.status];
 
-function FilterTab({ label, count, active, onClick }: {
+  async function copyDraft() {
+    if (!clause.bozza_paragrafo) return;
+    try {
+      await navigator.clipboard.writeText(clause.bozza_paragrafo);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      /* clipboard not available in some envs */
+    }
+  }
+
+  return (
+    <div className="rounded-xl border border-violet-500/20 bg-violet-500/[0.03] p-5
+                    flex flex-col gap-4">
+
+      {/* Header row */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <p className="font-medium text-white">{clause.nome}</p>
+          <p className="text-xs text-gray-600 mt-0.5">{clause.riferimento_normativo}</p>
+        </div>
+        <span className={`text-xs font-semibold uppercase tracking-widest whitespace-nowrap ${cfg.color}`}>
+          {cfg.label}
+        </span>
+      </div>
+
+      {/* Draft text box */}
+      <div className="relative rounded-lg border border-white/[0.07] bg-black/50 px-4 pt-5 pb-4">
+        {/* Floating label */}
+        <span className="absolute -top-[9px] left-3 bg-black px-2
+                         text-[10px] uppercase tracking-widest text-violet-400/60">
+          Bozza clausola
+        </span>
+        <p className="text-sm text-gray-300 leading-[1.75] whitespace-pre-wrap">
+          {clause.bozza_paragrafo}
+        </p>
+      </div>
+
+      {/* Copy button */}
+      <div className="flex justify-end">
+        <button
+          onClick={copyDraft}
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg text-xs font-medium
+                      border transition-all duration-200 ${
+            copied
+              ? "bg-emerald-500/12 border-emerald-500/30 text-emerald-400"
+              : "bg-violet-500/8 border-violet-500/20 text-violet-300 hover:bg-violet-500/15 hover:border-violet-500/35"
+          }`}
+        >
+          {copied ? (
+            <>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+                  d="M5 13l4 4L19 7" />
+              </svg>
+              Copiato!
+            </>
+          ) : (
+            <>
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              Copia testo
+            </>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ── Filter tab ───────────────────────────────────────────────── */
+type FilterValue = "tutti" | ClauseStatus | "bozze";
+
+function FilterTab({ label, count, active, onClick, accent }: {
   label: string; count: number; active: boolean; onClick: () => void;
+  accent?: "violet";
 }) {
+  const violetActive   = "bg-violet-500/15 text-violet-200 border border-violet-500/30";
+  const violetInactive = "text-violet-400/60 hover:text-violet-300 border border-transparent";
+  const defaultActive  = "bg-white/10 text-white border border-white/20";
+  const defaultInactive = "text-gray-500 hover:text-gray-300 border border-transparent";
+
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium transition-all duration-200 ${
+      className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium
+                  transition-all duration-200 ${
         active
-          ? "bg-white/10 text-white border border-white/20"
-          : "text-gray-500 hover:text-gray-300 border border-transparent"
+          ? accent === "violet" ? violetActive  : defaultActive
+          : accent === "violet" ? violetInactive : defaultInactive
       }`}
     >
       {label}
       <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-semibold ${
-        active ? "bg-white/20 text-white" : "bg-white/5 text-gray-600"
+        active
+          ? accent === "violet" ? "bg-violet-500/25 text-violet-200" : "bg-white/20 text-white"
+          : "bg-white/5 text-gray-600"
       }`}>
         {count}
       </span>
@@ -81,13 +167,18 @@ interface Props {
 export default function ResultsDashboard({ report, onReset }: Props) {
   const [filter, setFilter] = useState<FilterValue>("tutti");
 
-  const presente  = report.clausole.filter(c => c.status === "presente").length;
-  const mancante  = report.clausole.filter(c => c.status === "mancante").length;
+  const presente   = report.clausole.filter(c => c.status === "presente").length;
+  const mancante   = report.clausole.filter(c => c.status === "mancante").length;
   const incompleta = report.clausole.filter(c => c.status === "incompleta").length;
+  const bozzeList  = report.clausole.filter(c => !!c.bozza_paragrafo);
 
-  const filtered = filter === "tutti"
-    ? report.clausole
-    : report.clausole.filter(c => c.status === filter);
+  const isBozzeTab = filter === "bozze";
+
+  const filtered = isBozzeTab
+    ? bozzeList
+    : filter === "tutti"
+      ? report.clausole
+      : report.clausole.filter(c => c.status === filter);
 
   return (
     <div className="min-h-screen bg-black text-white overflow-x-hidden">
@@ -102,12 +193,11 @@ export default function ResultsDashboard({ report, onReset }: Props) {
         }} />
       </div>
 
-      {/* ── Header — results mode ── */}
+      {/* ── Header ── */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl
                          border-b border-white/[0.05]">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between gap-4">
 
-          {/* Left: logo + back link */}
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-lg bg-cyan-500 flex items-center justify-center">
@@ -130,7 +220,6 @@ export default function ResultsDashboard({ report, onReset }: Props) {
             </button>
           </div>
 
-          {/* Right: clause summary chips */}
           <div className="flex items-center gap-2 flex-wrap justify-end">
             <span className="flex items-center gap-1.5 text-xs text-emerald-400 bg-emerald-500/10
                              border border-emerald-500/20 rounded-full px-3 py-1.5">
@@ -168,18 +257,52 @@ export default function ResultsDashboard({ report, onReset }: Props) {
           </div>
         </div>
 
-        {/* Filter tabs + clause list */}
+        {/* Filter tabs */}
         <div>
           <div className="flex items-center gap-1 mb-6 flex-wrap">
             <FilterTab label="Tutti"      count={report.clausole.length} active={filter === "tutti"}      onClick={() => setFilter("tutti")} />
             <FilterTab label="Presenti"   count={presente}               active={filter === "presente"}   onClick={() => setFilter("presente")} />
             <FilterTab label="Incomplete" count={incompleta}             active={filter === "incompleta"} onClick={() => setFilter("incompleta")} />
             <FilterTab label="Mancanti"   count={mancante}               active={filter === "mancante"}   onClick={() => setFilter("mancante")} />
+
+            {/* Divider */}
+            <div className="w-px h-5 bg-white/10 mx-1" />
+
+            <FilterTab
+              label="✦ Bozze pronte"
+              count={bozzeList.length}
+              active={filter === "bozze"}
+              onClick={() => setFilter("bozze")}
+              accent="violet"
+            />
           </div>
 
+          {/* Bozze tab intro banner */}
+          {isBozzeTab && bozzeList.length > 0 && (
+            <div className="mb-5 flex items-start gap-3 rounded-xl border border-violet-500/15
+                            bg-violet-500/[0.04] px-4 py-3">
+              <svg className="w-4 h-4 text-violet-400/70 shrink-0 mt-0.5" fill="none"
+                stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                  d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <p className="text-xs text-violet-300/70 leading-relaxed">
+                Bozze generate dall&apos;AI pronte da copiare nel contratto.
+                Rivedi sempre con il team legale prima dell&apos;uso in documenti ufficiali.
+              </p>
+            </div>
+          )}
+
+          {/* Card list */}
           {filtered.length === 0 ? (
             <div className="text-center py-16 text-gray-600 text-sm">
-              Nessuna clausola con questo stato.
+              {isBozzeTab
+                ? "Nessuna bozza richiesta — il contratto risulta conforme per tutte le clausole."
+                : "Nessuna clausola con questo stato."}
+            </div>
+          ) : isBozzeTab ? (
+            <div className="flex flex-col gap-4">
+              {filtered.map((c, i) => <DraftCard key={i} clause={c} />)}
             </div>
           ) : (
             <div className="flex flex-col gap-3">
@@ -189,7 +312,7 @@ export default function ResultsDashboard({ report, onReset }: Props) {
         </div>
 
         {/* Raccomandazioni */}
-        {report.raccomandazioni.length > 0 && (
+        {!isBozzeTab && report.raccomandazioni.length > 0 && (
           <div>
             <h2 className="text-sm uppercase tracking-widest text-gray-500 mb-4">
               Raccomandazioni

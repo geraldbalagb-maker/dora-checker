@@ -14,6 +14,7 @@ class DoraClause(BaseModel):
     status: ClauseStatus
     estratto: str | None = None
     note: str
+    bozza_paragrafo: str | None = None  # draft contract text for mancante/incompleta
 
 
 class DoraReport(BaseModel):

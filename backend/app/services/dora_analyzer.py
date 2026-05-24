@@ -37,6 +37,17 @@ _TOOL_SCHEMA = {
                             "type": "string",
                             "description": "Spiegazione del giudizio",
                         },
+                        "bozza_paragrafo": {
+                            "type": "string",
+                            "description": (
+                                "Bozza di testo contrattuale pronto all'uso, in italiano formale e "
+                                "linguaggio giuridico-contrattuale, da inserire nel contratto per "
+                                "colmare la lacuna. Includi solo per clausole 'mancante' o "
+                                "'incompleta'. Ometti (o imposta null) per clausole 'presente'. "
+                                "La bozza deve essere specifica, con metriche, scadenze e "
+                                "obblighi concreti allineati al requisito DORA."
+                            ),
+                        },
                     },
                     "required": ["nome", "riferimento_normativo", "status", "note"],
                 },
@@ -71,6 +82,17 @@ Per ogni clausola:
 - MANCANTE: assente nel contratto
 
 Il punteggio di conformità si calcola: (PRESENTE × 12.5) + (INCOMPLETA × 6.25) su 100.
+
+Per ogni clausola MANCANTE o INCOMPLETA, fornisci obbligatoriamente il campo
+"bozza_paragrafo": un testo contrattuale pronto all'uso in italiano formale e linguaggio
+giuridico. La bozza deve:
+- Essere direttamente inseribile nel contratto senza modifiche sostanziali
+- Includere obblighi specifici, metriche misurabili, scadenze e responsabilità
+- Fare riferimento al fornitore come "il Fornitore" e al cliente come "il Cliente"
+- Essere allineata ai requisiti specifici dell'Art. 30 DORA per quella clausola
+- Avere lunghezza di 80-150 parole
+
+Per le clausole PRESENTI, ometti il campo bozza_paragrafo (o impostalo null).
 Usa SEMPRE il tool dora_compliance_report per l'output."""
 
 _DEMO_CONTRACT = """CLOUD SERVICES AGREEMENT - Enterprise Edition
@@ -122,7 +144,7 @@ async def analyze_contract(pdf_bytes: bytes | None, demo: bool = False) -> DoraR
 
     response = await client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=4096,
+        max_tokens=6000,  # increased: draft paragraphs add ~150w × up to 8 clauses
         system=_SYSTEM_PROMPT,
         tools=[_TOOL_SCHEMA],
         tool_choice={"type": "tool", "name": "dora_compliance_report"},
