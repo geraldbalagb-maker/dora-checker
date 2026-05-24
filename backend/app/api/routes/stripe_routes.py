@@ -89,7 +89,7 @@ async def stripe_webhook(request: Request):
 
     try:
         event = stripe.Webhook.construct_event(payload, sig, settings.stripe_webhook_secret)
-    except stripe.error.SignatureVerificationError:
+    except stripe.SignatureVerificationError:
         raise HTTPException(status_code=400, detail="Invalid signature.")
 
     sb = get_supabase()
@@ -100,7 +100,7 @@ async def stripe_webhook(request: Request):
         sub_id = session.get("subscription")
         if user_id and sub_id:
             sb.table("subscriptions").upsert(
-                {"user_id": user_id, "stripe_subscription_id": sub_id, "plan": "pro", "status": "active"}
+                {"user_id": user_id, "stripe_subscription_id": sub_id, "plan": "pro"}
             ).execute()
 
     elif event["type"] in ("customer.subscription.updated", "customer.subscription.deleted"):
@@ -116,7 +116,7 @@ async def stripe_webhook(request: Request):
         if row.data:
             plan = "pro" if sub.get("status") == "active" else "free"
             sb.table("subscriptions").update(
-                {"plan": plan, "status": sub.get("status", "canceled")}
+                {"plan": plan}
             ).eq("user_id", row.data["user_id"]).execute()
 
     return JSONResponse({"received": True})
