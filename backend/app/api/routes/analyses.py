@@ -12,7 +12,7 @@ async def list_analyses(user=Depends(require_user)):
     result = (
         get_supabase()
         .table("analyses")
-        .select("id, filename, punteggio_conformita, created_at")
+        .select("id, filename, score, created_at")
         .eq("user_id", str(user.id))
         .order("created_at", desc=True)
         .limit(50)

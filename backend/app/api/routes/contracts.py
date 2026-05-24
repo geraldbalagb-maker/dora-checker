@@ -94,8 +94,7 @@ def _save_analysis(user, filename: str | None, report: DoraReport) -> None:
         get_supabase().table("analyses").insert(
             {
                 "user_id": str(user.id),
-                "filename": filename,
-                "punteggio_conformita": report.punteggio_conformita,
+                "filename": filename or "contratto.pdf",
                 "report": report.model_dump(),
             }
         ).execute()

@@ -10,7 +10,7 @@ import ResultsDashboard from "@/components/ResultsDashboard";
 interface Analysis {
   id: string;
   filename: string | null;
-  punteggio_conformita: number;
+  score: number;
   created_at: string;
 }
 
@@ -246,7 +246,7 @@ export default function DashboardClient({ user, upgraded }: Props) {
                 </div>
 
                 {/* Score */}
-                <ScoreChip score={a.punteggio_conformita} />
+                <ScoreChip score={a.score} />
 
                 {/* Delete */}
                 <button
